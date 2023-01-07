@@ -1,2 +1,2 @@
-# Ci-ncia-da-Computa-o
+# Ciencia-da-Computacao
 Projetos acadêmicos
