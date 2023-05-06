@@ -1,0 +1,26 @@
+pilha = []
+
+# adiciona elementos na pilha
+pilha.append(1)
+pilha.append(2)
+pilha.append(3)
+
+# remove elementos da pilha
+elemento = pilha.pop()  # remove o elemento 3
+elemento = pilha.pop()  # remove o elemento 2
+elemento = pilha.pop()  # remove o elemento 1
+
+
+
+
+from collections import deque
+
+queue = deque()
+
+queue.append(1)
+queue.append(2)
+queue.append(3)
+
+while queue:
+    item = queue.popleft()
+    print(item)
