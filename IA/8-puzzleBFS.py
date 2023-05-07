@@ -28,8 +28,6 @@ def matriz_para_string(matriz):
         s += ''.join(str(elem) for elem in linha)
     return s
 
-visitados = set()
-
 def move_down(state, zero):
     state[zero[0]][zero[1]], state[zero[0]+1][zero[1]] = state[zero[0]+1][zero[1]], state[zero[0]][zero[1]]
     return state
@@ -115,8 +113,8 @@ objetivo = [[ 1, 2, 3 ],
 
 def BFS(node):
     fila = deque()
+    visitados = set()
     aux = copy.deepcopy(node)
-    #historico = []
     while not matrices_equal(objetivo, aux.state):
         visitados.add(matriz_para_string(aux.state))   
         lista = generate_node(aux)
@@ -124,18 +122,30 @@ def BFS(node):
             if not matriz_para_string(i.state) in visitados:
                 fila.append(i)
         aux = fila.popleft()
-        #print(aux.depth)
-    return aux, len(fila)
+    return aux, len(fila), len(visitados)
+
+def DFS(node):
+    pilha =[]
+    visitados = set()
+    aux = copy.deepcopy(node)
+    while not matrices_equal(objetivo, aux.state):
+        visitados.add(matriz_para_string(aux.state))   
+        lista = generate_node(aux)
+        for i in lista:
+            if not matriz_para_string(i.state) in visitados:
+                pilha.append(i)
+        aux = pilha.pop()
+    return aux, len(pilha), len(visitados)
+    
 
 raiz = Node([[ 0, 8, 7 ],
              [ 6, 5, 4 ],
              [ 3, 2, 1 ]])
  
-lista = generate_node(raiz)
-resultado, tamanho_fila = BFS(raiz)
+resultado, tamanho_fila, visitados = BFS(raiz)
 print("path_to_goal: ", resultado.action,
       "cost_of_path: ", resultado.cost,
-      "nodes_expanded: ", len(visitados),
+      "nodes_expanded: ", visitados,
       "fringe_size: ", tamanho_fila,
       "search_depth: ", resultado.depth,
       "max_search_depth: ",resultado.depth)
