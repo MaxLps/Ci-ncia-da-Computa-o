@@ -1,13 +1,15 @@
 from collections import deque
+from heapq import heapify
 import copy
 
 class Node:
-    def __init__(self, state, parent=None, action = ["pai"], depth=0, cost=0):
+    def __init__(self, state, manhattan, parent=None, action = [None], depth=0, cost=0):
         self.state = state     
         self.parent = parent
         self.action = action
         self.depth = depth
         self.cost = cost
+        self.manhattan = manhattan
     
 moves = {
     (0, 0): ["Down", "Right"],
@@ -45,18 +47,37 @@ def move_left(state, zero):
     state[zero[0]][zero[1]], state[zero[0]][zero[1]-1] = state[zero[0]][zero[1]-1], state[zero[0]][zero[1]]
     return state
 
+def ponto_tupla(matriz):
+    lista = [None] * 9  
+    for i, linha in enumerate(matriz):
+        for j, elemento in enumerate(linha):
+            lista[elemento] = (i, j)
+    return lista
+
+objetivo = [[0,1,2],
+            [3,4,5],
+            [6,7,8]]
+
+pontos_objtivo = ponto_tupla(objetivo)
+
+def dist_manhattan(matriz): 
+    pontos_matriz = ponto_tupla(matriz)
+    cont = 0
+    for i in range(9):
+        if i != 0:
+            ponto1 = pontos_objtivo[i]
+            ponto2 = pontos_matriz[i]
+            cont = cont + abs(ponto1[0] - ponto2[0]) + abs(ponto1[1] - ponto2[1])
+    return cont
+
+visitados = set()
+
 def generate_node(node):
     zero = None
     state = copy.deepcopy(node.state)  
     list_node = []
-
-    for i, linha in enumerate(node.state):
-        for j, elemento in enumerate(linha):
-            if elemento == 0:
-                zero = (i,j)
-                break
-        if zero == 0:
-            break
+    list_pontos = ponto_tupla(node.state)
+    zero = list_pontos[0]
 
     move = moves[(zero)]
     for valor in  move:
@@ -65,7 +86,9 @@ def generate_node(node):
             action.append("Down")
             new_state = move_down(copy.deepcopy(state), zero)
             if not matriz_para_tupla(new_state) in visitados:
-                new_node = Node(new_state, node, action, node.depth + 1, node.cost + 1)
+                visitados.add(matriz_para_tupla(new_state)) 
+                manhattan = dist_manhattan(new_state)
+                new_node = Node(new_state, manhattan, node, action, node.depth + 1, node.cost + 1)
                 list_node.append(new_node)
 
         if valor == "Up":
@@ -73,7 +96,9 @@ def generate_node(node):
             action.append("Up")
             new_state = move_up(copy.deepcopy(state), zero)  
             if not matriz_para_tupla(new_state) in visitados:
-                new_node = Node(new_state, node, action, node.depth + 1, node.cost + 1)
+                visitados.add(matriz_para_tupla(new_state)) 
+                manhattan = dist_manhattan(new_state)
+                new_node = Node(new_state, manhattan, node, action, node.depth + 1, node.cost + 1)
                 list_node.append(new_node)
 
         if valor == "Right":
@@ -81,7 +106,9 @@ def generate_node(node):
             action.append("Right")
             new_state = move_right(copy.deepcopy(state), zero)  
             if not matriz_para_tupla(new_state) in visitados:
-                new_node = Node(new_state, node, action, node.depth + 1, node.cost + 1)
+                visitados.add(matriz_para_tupla(new_state)) 
+                manhattan = dist_manhattan(new_state)
+                new_node = Node(new_state, manhattan, node, action, node.depth + 1, node.cost + 1)
                 list_node.append(new_node)
 
         if valor == "Left":
@@ -89,43 +116,37 @@ def generate_node(node):
             action.append("Left")
             new_state = move_left(copy.deepcopy(state), zero)  
             if not matriz_para_tupla(new_state) in visitados:
-                new_node = Node(new_state, node, action, node.depth + 1, node.cost + 1)
+                visitados.add(matriz_para_tupla(new_state)) 
+                manhattan = dist_manhattan(new_state)
+                new_node = Node(new_state, manhattan, node, action, node.depth + 1, node.cost + 1)
                 list_node.append(new_node)
-    return list_node
+    return list_node 
 
-def matrices_equal(matrix1, matrix2):
-    if len(matrix1) != len(matrix2) or len(matrix1[0]) != len(matrix2[0]):
-        return False
-    for i in range(len(matrix1)):
-        for j in range(len(matrix1[0])):
-            if matrix1[i][j] != matrix2[i][j]:
-                return False
-    return True   
+objetivo = matriz_para_tupla([[ 0, 1, 2 ],
+                              [ 3, 4, 5 ],
+                              [ 6, 7, 8 ]])
 
-def imprime_matriz(matriz):
-    for linha in matriz:
-        for coluna in linha:
-            print(coluna, end=' ')
-        print()
-    print("\n")  
+def BFS(node):
+    lista = []
+    aux = copy.deepcopy(node)
+    while not objetivo == matriz_para_tupla(aux.state):  
+        lista.extend(generate_node(aux))
+        aux = min(lista, key=lambda x: x.manhattan)
+        lista.remove(aux)
+    return aux, len(lista), len(visitados) + len(lista)
 
-objetivo = [[ 0, 1, 2 ],
-            [ 3, 4, 5 ],
-            [ 6, 7, 8 ]]
+inicial = [[ 0, 8, 7 ],
+           [ 6, 5, 4 ],
+           [ 3, 2, 1 ]]
 
-visitados = set()
+raiz = Node(inicial, dist_manhattan(inicial))
 
-def DFS(node):
-    if node 
-        
+resultado, tamanho_fila, visitados = BFS(raiz)
+caminho = resultado.action[1:]
 
-raiz = Node([[ 0, 8, 7 ],
-             [ 6, 5, 4 ],
-             [ 3, 2, 1 ]])
- 
-resultado, visitados = DFS(raiz)
-print("path_to_goal: ", resultado.action,
-      "cost_of_path: ", resultado.cost,
-      "nodes_expanded: ", visitados,
-      "search_depth: ", resultado.depth,
+print("path_to_goal: ", caminho,"\n",
+      "cost_of_path: ", resultado.cost,"\n",
+      "nodes_expanded: ", visitados,"\n",
+      "fringe_size: ", tamanho_fila,"\n",
+      "search_depth: ", resultado.depth,"\n",
       "max_search_depth: ",resultado.depth)
