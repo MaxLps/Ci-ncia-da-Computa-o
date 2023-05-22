@@ -23,6 +23,15 @@ moves = {
     (2, 2): ["Up", "Left"]
 }
 
+def matrices_equal(matrix1, matrix2):
+    if len(matrix1) != len(matrix2) or len(matrix1[0]) != len(matrix2[0]):
+        return False
+    for i in range(len(matrix1)):
+        for j in range(len(matrix1[0])):
+            if matrix1[i][j] != matrix2[i][j]:
+                return False
+    return True 
+
 def matriz_para_tupla(matriz):
     tupla = [tuple(list) for list in matriz]
     return tuple(tupla)
@@ -43,6 +52,10 @@ def move_left(state, zero):
     state[zero[0]][zero[1]], state[zero[0]][zero[1]-1] = state[zero[0]][zero[1]-1], state[zero[0]][zero[1]]
     return state
 
+def max_fringe(lista, max_fringe_size):
+    if len(lista) > max_fringe_size:
+        max_fringe_size = len(lista)
+
 def cria_no(new_state, move, node, fila, visitados):
     if not matriz_para_tupla(new_state) in visitados:
         visitados.add(matriz_para_tupla(new_state))
@@ -50,8 +63,8 @@ def cria_no(new_state, move, node, fila, visitados):
         action.append(move)
         new_node = Node(new_state, node, action, node.depth + 1, node.cost + 1)
         fila.append(new_node)
-        
-def generate_node(node, fila, visitados):
+
+def generate_node(node, lista, visitados):
     zero = None
     state = copy.deepcopy(node.state)  
 
@@ -67,30 +80,31 @@ def generate_node(node, fila, visitados):
     for valor in  move:
         if valor == "Down":
             new_state = move_down(copy.deepcopy(state), zero)
-            cria_no(new_state, valor, node, fila, visitados)
+            cria_no(new_state, valor, node, lista, visitados)
 
         if valor == "Up":
             new_state = move_up(copy.deepcopy(state), zero)  
-            cria_no(new_state, valor, node, fila, visitados)
+            cria_no(new_state, valor, node, lista, visitados)
             
         if valor == "Right":
             new_state = move_right(copy.deepcopy(state), zero)  
-            cria_no(new_state, valor, node, fila, visitados)
+            cria_no(new_state, valor, node, lista, visitados)
 
         if valor == "Left":
             new_state = move_left(copy.deepcopy(state), zero)  
-            cria_no(new_state, valor, node, fila, visitados)
+            cria_no(new_state, valor, node, lista, visitados)
 
-objetivo = matriz_para_tupla([[ 0, 1, 2 ],
-                              [ 3, 4, 5 ],
-                              [ 6, 7, 8 ]])
+
+objetivo = [[ 0, 1, 2 ],
+            [ 3, 4, 5 ],
+            [ 6, 7, 8 ]]
 
 def BFS(node):
     visitados = set()
     fila = deque()
     max_fringe_size = 0
     aux = node
-    while not objetivo == matriz_para_tupla(aux.state):  
+    while not matrices_equal(objetivo, aux.state):  
         generate_node(aux, fila, visitados)
         if len(fila) > max_fringe_size:
             max_fringe_size = len(fila)
@@ -121,7 +135,98 @@ print("path_to_goal: ", caminho,"\n",
       "cost_of_path: ", resultado.cost,"\n",
       "nodes_expanded: ", visitados,"\n",
       "fringe_size: ", tamanho_fila,"\n",
-      "max_fringe_size", max_fringe_size,"\n",
+      "max_fringe_size:", max_fringe_size,"\n",
+      "search_depth: ", resultado.depth,"\n",
+      "max_search_depth:", resultado.depth,"\n",
+      "running_time:", tempo,"\n",
+      "max_search_depth: ",resultado.depth,"\n"
+      "max_ram_usage: ", memoria,"\n")
+
+def DFS(node, max_depth):
+    visitados = set()
+    pilha = []
+    max_fringe_size = 0
+    aux = node
+    while not matrices_equal(objetivo, aux.state): 
+        if aux.depth <= max_depth:   
+            generate_node(aux, pilha, visitados)
+        if len(pilha) > max_fringe_size:
+            max_fringe_size = len(pilha)
+        if pilha:
+            aux = pilha.pop()
+        else:
+            return None
+    return aux, len(pilha), len(visitados) + len(pilha), max_fringe_size
+
+root = Node([[ 0, 8, 7 ],
+             [ 6, 5, 4 ],
+             [ 3, 2, 1 ]])
+
+process = psutil.Process()
+
+inicio = time.time()
+memory_before = process.memory_info().rss
+
+resultado, tamanho_fila, visitados, max_fringe_size = DFS(root,50) 
+
+memory_after = process.memory_info().rss
+fim = time.time()
+
+tempo = fim - inicio
+memoria = memory_after - memory_before
+memoria = round(memoria / (1024 * 1024), 2)
+
+caminho = resultado.action[1:]
+
+print("path_to_goal: ", caminho,"\n",
+      "cost_of_path: ", resultado.cost,"\n",
+      "nodes_expanded: ", visitados,"\n",
+      "fringe_size: ", tamanho_fila,"\n",
+      "max_fringe_size:", max_fringe_size,"\n",
+      "search_depth: ", resultado.depth,"\n",
+      "max_search_depth:", resultado.depth,"\n",
+      "running_time:", tempo,"\n",
+      "max_search_depth: ",resultado.depth,"\n"
+      "max_ram_usage: ", memoria,"\n")
+
+def IDFS(node):
+    i = 0
+    while True:
+        resultado = DFS(node, i)
+        if resultado is None:
+            i += 1
+        else:
+            node = resultado[0]
+            tamanho_fila = resultado[1]
+            visitados = resultado[2]
+            max_fringe_size = resultado[3]
+            return node, tamanho_fila, visitados, max_fringe_size
+
+root = Node([[ 0, 8, 7 ],
+             [ 6, 5, 4 ],
+             [ 3, 2, 1 ]])
+
+process = psutil.Process()
+
+inicio = time.time()
+memory_before = process.memory_info().rss
+
+resultado, tamanho_fila, visitados, max_fringe_size = IDFS(root) 
+
+memory_after = process.memory_info().rss
+fim = time.time()
+
+tempo = fim - inicio
+memoria = memory_after - memory_before
+memoria = round(memoria / (1024 * 1024), 2)
+
+caminho = resultado.action[1:]
+
+print("path_to_goal: ", caminho,"\n",
+      "cost_of_path: ", resultado.cost,"\n",
+      "nodes_expanded: ", visitados,"\n",
+      "fringe_size: ", tamanho_fila,"\n",
+      "max_fringe_size:", max_fringe_size,"\n",
       "search_depth: ", resultado.depth,"\n",
       "max_search_depth:", resultado.depth,"\n",
       "running_time:", tempo,"\n",

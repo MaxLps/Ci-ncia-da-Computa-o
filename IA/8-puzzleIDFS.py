@@ -1,5 +1,7 @@
-from collections import deque
 import copy
+import time
+import psutil
+from collections import deque
 
 class Node:
     def __init__(self, state, parent=None, action = [None], depth=0, cost=0):
@@ -21,11 +23,9 @@ moves = {
     (2, 2): ["Up", "Left"]
 }
 
-def matriz_para_string(matriz):
-    s = ''
-    for linha in matriz:
-        s += ''.join(str(elem) for elem in linha)
-    return s
+def matriz_para_tupla(matriz):
+    tupla = [tuple(list) for list in matriz]
+    return tuple(tupla)
 
 def move_down(state, zero):
     state[zero[0]][zero[1]], state[zero[0]+1][zero[1]] = state[zero[0]+1][zero[1]], state[zero[0]][zero[1]]
@@ -110,27 +110,50 @@ objetivo = [[ 1, 2, 3 ],
             [ 7, 8, 0 ]]
 
 def IDFS(node, max_depth):
-    pilha =[]
+    pilha = deque()
     visitados = set()
+    max_fringe_size = 0
+
     aux = copy.deepcopy(node)
     while not matrices_equal(objetivo, aux.state):
-        visitados.add(matriz_para_string(aux.state))   
+        visitados.add(matriz_para_tupla(aux.state))   
         lista = generate_node(aux)
         for i in lista:
-            if not matriz_para_string(i.state) in visitados and i.depth <= max_depth:
+            if not matriz_para_tupla(i.state) in visitados and i.depth <= max_depth:
                 pilha.append(i)
+                if len(pilha) > max_fringe_size:
+                    max_fringe_size = len(pilha)
         aux = pilha.pop()
-    return aux, len(pilha), len(visitados)
+    return aux, len(pilha), len(visitados) + len(pilha), max_fringe_size
     
 
 raiz = Node([[ 0, 8, 7 ],
              [ 6, 5, 4 ],
              [ 3, 2, 1 ]])
 
-resultado, tamanho_fila, visitados = IDFS(raiz, 70)
-print("path_to_goal: ", resultado.action,
-      "cost_of_path: ", resultado.cost,
-      "nodes_expanded: ", visitados,
-      "fringe_size: ", tamanho_fila,
-      "search_depth: ", resultado.depth,
-      "max_search_depth: ",resultado.depth)
+process = psutil.Process()
+
+inicio = time.time()
+memory_before = process.memory_info().rss
+
+resultado, tamanho_pilha, visitados, max_fringe_size = IDFS(raiz, 70)
+
+memory_after = process.memory_info().rss
+fim = time.time()
+
+tempo = fim - inicio
+memoria = memory_after - memory_before
+memoria = round(memoria / (1024 * 1024), 2)
+
+caminho = resultado.action[1:]
+
+print("path_to_goal: ", caminho,"\n",
+      "cost_of_path: ", resultado.cost,"\n",
+      "nodes_expanded: ", visitados,"\n",
+      "fringe_size: ", tamanho_pilha,"\n",
+      "max_fringe_size", max_fringe_size,"\n",
+      "search_depth: ", resultado.depth,"\n",
+      "max_search_depth:", resultado.depth,"\n",
+      "running_time:", tempo,"\n",
+      "max_search_depth: ",resultado.depth,"\n"
+      "max_ram_usage: ", memoria,"\n")
