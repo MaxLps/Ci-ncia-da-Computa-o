@@ -20,6 +20,10 @@ Nesta pasta, você encontrará mais de 100 exercícios desenvolvidos durante o 1
 
 Nesta pasta, você encontrará as provas realizadas durante o 2º período do curso de, onde a linguagem Java foi utilizada para desenvolver projetos e trabalhos com foco em programação orientada a objetos.
 
+### [Estrutura de dados I - 2º período](link-para-a-pasta-da-disciplina2)
+
+Nesta pasta, você encontrará projetos e trabalhos relacionados à disciplina de Estrutura de Dados I, que aborda conceitos fundamentais sobre estruturas de dados e suas implementações. Os tópicos cobertos incluem vetores, listas encadeadas, árvores e tabelas hash, todos implementados em linguagem C.
+
 ### [Algebra Linear Computacional - 3º período](link-para-a-pasta-da-disciplina3)
 
 Nesta pasta, você encontrará alguns algoritmos de resolução de sistemas lineares implementados em C. Os algoritmos disponíveis são Cholesky, LU e Eliminação de Gauss. 
