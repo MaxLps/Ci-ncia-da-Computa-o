@@ -28,7 +28,7 @@ Nesta pasta, você encontrará projetos e trabalhos relacionados à disciplina d
 
 Nesta pasta, você encontrará alguns algoritmos de resolução de sistemas lineares implementados em C. Os algoritmos disponíveis são Cholesky, LU e Eliminação de Gauss. 
 
-### [Sistemas Operacionais - 4º período](https://github.com/MaxwelLopes/Ciencia-da-Computacao/tree/main/Sistemas%20Operacionais%20-%204%C2%BA%20per%C3%ADodo/mymalloc4)
+### [Sistemas Operacionais - 4º período](https://github.com/MaxwelLopes/Ciencia-da-Computacao/tree/main/Sistemas%20Operacionais%20-%204%C2%BA%20per%C3%ADodo)
 
 Nesta pasta, você encontrará um projeto de alocador de memória personalizado chamado "mymalloc", implementado em linguagem C. Esse alocador é uma implementação própria de alocação dinâmica de memória
 
